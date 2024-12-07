@@ -1,4 +1,5 @@
 export interface Exercise {
+  load: ReactNode;
   id: string;
   name: string;
   sets: number;
@@ -7,6 +8,8 @@ export interface Exercise {
 }
 
 export interface Workout {
+  workoutType: ReactNode;
+  timestamp: any;
   id: string;
   date: string;
   name: string;
