@@ -3,7 +3,7 @@ import { WorkoutSummaryCard } from "@/components/dashboard/WorkoutSummaryCard";
 import { WorkoutChart } from "@/components/dashboard/WorkoutChart";
 import { WorkoutList } from "@/components/workouts/WorkoutList";
 import { Workout, WorkoutSummary } from "@/types/workout";
-import { getFirestore, collection, getDocs, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from './firebase'
 import { useEffect, useState } from "react";
 
