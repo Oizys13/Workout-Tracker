@@ -17,21 +17,22 @@ export function NewWorkoutDialog() {
   const handleAddExercise = () => {
     setExercises([...exercises, { name: "", sets: "", load: "" }]);
   };
-  const handleExerciseChange = (index, field, value) => {
+  const handleExerciseChange = (index: number, field: "name" | "sets" | "load", value: string) => {
     const updatedExercises = [...exercises];
-    updatedExercises[index][field] = value;
+    updatedExercises[index][field] = value; // TypeScript knows field is one of "name", "sets", or "load"
     setExercises(updatedExercises);
   };
-  const handleSave = async (e) => {
+  
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     
     try {
       const workoutData = {
-        workoutType: e.target.workoutType.value, // Replace with proper field IDs
-        day: e.target.day.value, // Replace with proper field IDs
-        duration: parseInt(e.target.duration.value, 10),
-        intensity: e.target.intensity.value, // Replace with proper field IDs
-        notes: e.target.notes.value,
+        workoutType: e.currentTarget.workoutType.value, // Replace with proper field IDs
+        day: e.currentTarget.day.value, // Replace with proper field IDs
+        duration: parseInt(e.currentTarget.duration.value, 10),
+        intensity: e.currentTarget.intensity.value, // Replace with proper field IDs
+        notes: e.currentTarget.notes.value,
         exercises,
         timestamp: new Date(), // Optional: Add a timestamp
       };
@@ -66,7 +67,7 @@ export function NewWorkoutDialog() {
         <form className="space-y-6 pt-4" onSubmit={handleSave}>
           <div className="space-y-2">
             <Label htmlFor="workoutType">Workout Type</Label>
-            <Select id="workoutType" name="workoutType">
+            <Select  name="workoutType">
               <SelectTrigger>
                 <SelectValue placeholder="Select workout type" />
               </SelectTrigger>
@@ -83,7 +84,7 @@ export function NewWorkoutDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="workoutDay">Day</Label>
-            <Select id="day" name="day">
+            <Select  name="day">
               <SelectTrigger>
                 <SelectValue placeholder="Select day" />
               </SelectTrigger>
@@ -116,7 +117,7 @@ export function NewWorkoutDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="intensity">Intensity</Label>
-              <Select id="intensity" name="intensity">
+              <Select name="intensity">
                 <SelectTrigger>
                   <SelectValue placeholder="Select intensity" />
                 </SelectTrigger>

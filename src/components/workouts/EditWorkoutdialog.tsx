@@ -5,11 +5,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus } from "lucide-react";
-import { collection, updateDoc, doc } from 'firebase/firestore';
-import { db } from '../../firebase';
 
-export function EditWorkoutDialog({ workout, open, onClose }) {
+import { updateDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { Workout } from "@/types/workout";
+
+interface EditWorkoutDialogProps {
+  workout: Workout; // Type of `workout` (replace `Workout` with the appropriate type if needed)
+  open: boolean; // `open` is a boolean that indicates if the dialog is open
+  onClose: () => void; // `onClose` is a function that will be triggered to close the dialog
+}
+
+export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogProps) {
   const [exercises, setExercises] = useState(workout ? workout.exercises : [{ name: "", sets: "", load: "" }]);
 
   useEffect(() => {
@@ -22,24 +29,24 @@ export function EditWorkoutDialog({ workout, open, onClose }) {
     setExercises([...exercises, { name: "", sets: "", load: "" }]);
   };
 
-  const handleExerciseChange = (index, field, value) => {
+  const handleExerciseChange = (index: number, field: "name" | "sets" | "load", value: string) => {
     const updatedExercises = [...exercises];
     updatedExercises[index][field] = value;
     setExercises(updatedExercises);
   };
 
-  const handleSave = async (e) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
       const updatedWorkout = {
-        workoutType: e.target.workoutType.value,
-        day: e.target.day.value,
-        duration: parseInt(e.target.duration.value, 10),
-        intensity: e.target.intensity.value,
-        notes: e.target.notes.value,
+        workoutType: e.currentTarget.workoutType.value, // Replace with proper field IDs
+        day: e.currentTarget.day.value, // Replace with proper field IDs
+        duration: parseInt(e.currentTarget.duration.value, 10),
+        intensity: e.currentTarget.intensity.value, // Replace with proper field IDs
+        notes: e.currentTarget.notes.value,
         exercises,
-        timestamp: workout.timestamp, // Keep the same timestamp
+        timestamp: new Date(), // Optional: Add a timestamp
       };
 
       // Update the workout in Firestore

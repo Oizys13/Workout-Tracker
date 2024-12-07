@@ -1,7 +1,7 @@
 import { ResponsiveContainer, LineChart, XAxis, YAxis, Tooltip, Line } from "recharts";
 import { ChartContainer } from "@/components/charts/ChartContainer";
 import { CustomTooltip } from "@/components/charts/CustomTooltip";
-import { useWeeklyWorkoutData, weeklyWorkoutData } from "@/data/mockChartData";
+import { useWeeklyWorkoutData } from "@/data/mockChartData";
 
 const chartConfig = {
   margin: { top: 5, right: 5, bottom: 5, left: 0 },

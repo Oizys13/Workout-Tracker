@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface Exercise {
   load: ReactNode;
   id: string;
