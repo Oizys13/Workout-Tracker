@@ -1,23 +1,56 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { updateDoc, doc } from "firebase/firestore";
+import { db } from "../../firebase";
+import { useLatestQuery } from "../../lib/LatestQueryContest";
 
-import { updateDoc, doc } from 'firebase/firestore';
-import { db } from '../../firebase';
-import { Workout } from "@/types/workout";
-
-interface EditWorkoutDialogProps {
-  workout: Workout; // Type of `workout` (replace `Workout` with the appropriate type if needed)
-  open: boolean; // `open` is a boolean that indicates if the dialog is open
-  onClose: () => void; // `onClose` is a function that will be triggered to close the dialog
+interface Exercise {
+  name: string;
+  sets: string;
+  load: string;
 }
 
-export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogProps) {
-  const [exercises, setExercises] = useState(workout ? workout.exercises : [{ name: "", sets: "", load: "" }]);
+interface Workout {
+  id: string;
+  workoutType?: string;
+  day?: string;
+  duration?: number;
+  intensity?: string;
+  notes?: string;
+  exercises: Exercise[];
+}
+
+interface EditWorkoutDialogProps {
+  workout: Workout | null;
+  open: boolean;
+  onClose: () => void;
+}
+
+export function EditWorkoutDialog({
+  workout,
+  open,
+  onClose,
+}: EditWorkoutDialogProps) {
+  const { setLatestQuery } = useLatestQuery();
+  const [exercises, setExercises] = useState<Exercise[]>(
+    workout ? workout.exercises : [{ name: "", sets: "", load: "" }]
+  );
 
   useEffect(() => {
     if (workout) {
@@ -29,7 +62,11 @@ export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogP
     setExercises([...exercises, { name: "", sets: "", load: "" }]);
   };
 
-  const handleExerciseChange = (index: number, field: "name" | "sets" | "load", value: string) => {
+  const handleExerciseChange = (
+    index: number,
+    field: "name" | "sets" | "load",
+    value: string
+  ) => {
     const updatedExercises = [...exercises];
     updatedExercises[index][field] = value;
     setExercises(updatedExercises);
@@ -38,26 +75,35 @@ export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogP
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!workout) {
+      console.error("No workout to update.");
+      return;
+    }
+
     try {
-      const updatedWorkout = {
-        workoutType: e.currentTarget.workoutType.value, // Replace with proper field IDs
-        day: e.currentTarget.day.value, // Replace with proper field IDs
-        duration: parseInt(e.currentTarget.duration.value, 10),
-        intensity: e.currentTarget.intensity.value, // Replace with proper field IDs
-        notes: e.currentTarget.notes.value,
+      const formData = new FormData(e.currentTarget);
+      const updatedWorkout: Omit<Workout, "id"> = {
+        workoutType: formData.get("workoutType")?.toString() || "",
+        day: formData.get("day")?.toString() || "",
+        duration: parseInt(formData.get("duration")?.toString() || "0", 10),
+        intensity: formData.get("intensity")?.toString() || "",
+        notes: formData.get("notes")?.toString() || "",
         exercises,
-        timestamp: new Date(), // Optional: Add a timestamp
       };
 
-      // Update the workout in Firestore
-      const workoutRef = doc(db, 'workouts', workout.id); // Get reference to the current workout document
+      const workoutRef = doc(db, "workouts", workout.id);
       await updateDoc(workoutRef, updatedWorkout);
+      setLatestQuery(
+        `updateDoc(doc(db, "workouts", "${workout.id}"), ${JSON.stringify(
+          updatedWorkout,
+          null,
+          2
+        )})`
+      );
 
-      onClose(); // Close the dialog
-
-      console.log('Workout updated successfully!');
+      onClose();
     } catch (error) {
-      console.error('Error updating workout:', error);
+      console.error("Error updating workout:", error);
     }
   };
 
@@ -70,7 +116,11 @@ export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogP
         <form className="space-y-6 pt-4" onSubmit={handleSave}>
           <div className="space-y-2">
             <Label htmlFor="workoutType">Workout Type</Label>
-            <Select id="workoutType" name="workoutType" defaultValue={workout?.workoutType}>
+            <Select
+              
+              name="workoutType"
+              defaultValue={workout?.workoutType}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select workout type" />
               </SelectTrigger>
@@ -86,7 +136,7 @@ export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogP
 
           <div className="space-y-2">
             <Label htmlFor="day">Day</Label>
-            <Select id="day" name="day" defaultValue={workout?.day}>
+            <Select  name="day" defaultValue={workout?.day}>
               <SelectTrigger>
                 <SelectValue placeholder="Select day" />
               </SelectTrigger>
@@ -116,7 +166,11 @@ export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogP
             </div>
             <div className="space-y-2">
               <Label htmlFor="intensity">Intensity</Label>
-              <Select id="intensity" name="intensity" defaultValue={workout?.intensity}>
+              <Select
+                
+                name="intensity"
+                defaultValue={workout?.intensity}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select intensity" />
                 </SelectTrigger>
@@ -132,23 +186,32 @@ export function EditWorkoutDialog({ workout, open, onClose }: EditWorkoutDialogP
           <div className="space-y-4">
             <Label>Exercises</Label>
             {exercises.map((exercise, index) => (
-              <div key={index} className="grid grid-cols-3 gap-2 items-center">
+              <div
+                key={index}
+                className="grid grid-cols-3 gap-2 items-center"
+              >
                 <Input
                   placeholder="Exercise Name"
                   value={exercise.name}
-                  onChange={(e) => handleExerciseChange(index, "name", e.target.value)}
+                  onChange={(e) =>
+                    handleExerciseChange(index, "name", e.target.value)
+                  }
                 />
                 <Input
                   placeholder="Sets"
                   type="number"
                   value={exercise.sets}
-                  onChange={(e) => handleExerciseChange(index, "sets", e.target.value)}
+                  onChange={(e) =>
+                    handleExerciseChange(index, "sets", e.target.value)
+                  }
                 />
                 <Input
                   placeholder="Load (kg)"
                   type="number"
                   value={exercise.load}
-                  onChange={(e) => handleExerciseChange(index, "load", e.target.value)}
+                  onChange={(e) =>
+                    handleExerciseChange(index, "load", e.target.value)
+                  }
                 />
               </div>
             ))}

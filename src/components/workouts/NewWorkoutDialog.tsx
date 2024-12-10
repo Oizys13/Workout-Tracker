@@ -8,24 +8,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus } from "lucide-react";
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../firebase'
+import { useLatestQuery } from '../../lib/LatestQueryContest';
 
 export function NewWorkoutDialog() {
+  const { setLatestQuery } = useLatestQuery();
   const [open, setOpen] = useState(false);
+
   const [exercises, setExercises] = useState([
     { name: "", sets: "", load: "" },
   ]);
+
   const handleAddExercise = () => {
     setExercises([...exercises, { name: "", sets: "", load: "" }]);
   };
+
   const handleExerciseChange = (index: number, field: "name" | "sets" | "load", value: string) => {
     const updatedExercises = [...exercises];
     updatedExercises[index][field] = value; // TypeScript knows field is one of "name", "sets", or "load"
     setExercises(updatedExercises);
   };
-  
+
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    
+
     try {
       const workoutData = {
         workoutType: e.currentTarget.workoutType.value, // Replace with proper field IDs
@@ -36,11 +41,10 @@ export function NewWorkoutDialog() {
         exercises,
         timestamp: new Date(), // Optional: Add a timestamp
       };
-      
-      
 
       // Save to Firestore
       await addDoc(collection(db, 'workouts'), workoutData);
+      setLatestQuery(`addDoc(collection(db, "workouts"), ${JSON.stringify(workoutData, null, 2)})`);
 
       // Optionally close the dialog
       setOpen(false);
@@ -67,7 +71,7 @@ export function NewWorkoutDialog() {
         <form className="space-y-6 pt-4" onSubmit={handleSave}>
           <div className="space-y-2">
             <Label htmlFor="workoutType">Workout Type</Label>
-            <Select  name="workoutType">
+            <Select name="workoutType">
               <SelectTrigger>
                 <SelectValue placeholder="Select workout type" />
               </SelectTrigger>
@@ -84,7 +88,7 @@ export function NewWorkoutDialog() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="workoutDay">Day</Label>
-            <Select  name="day">
+            <Select name="day">
               <SelectTrigger>
                 <SelectValue placeholder="Select day" />
               </SelectTrigger>

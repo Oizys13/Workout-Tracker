@@ -3,11 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Workout } from "@/types/workout";
 import { CalendarDays, Clock } from "lucide-react";
 import { X } from "lucide-react"; // Import the 'X' icon from lucide-react
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { deleteDoc, doc } from "firebase/firestore"; // Import deleteDoc and doc from Firestore
 import { db } from "../../firebase";
 import { EditWorkoutDialog } from "./EditWorkoutdialog";
+import { useLatestQuery } from '../../lib/LatestQueryContest';
 
 interface WorkoutListProps {
   workouts: Workout[];
@@ -23,6 +24,7 @@ function formatTimestamp(timestamp: any): string {
 }
 
 export function WorkoutList({ workouts }: WorkoutListProps) {
+  const { setLatestQuery } = useLatestQuery();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [workoutToDelete, setWorkoutToDelete] = useState<Workout | null>(null);
@@ -48,7 +50,7 @@ export function WorkoutList({ workouts }: WorkoutListProps) {
         
         // Delete the workout document from Firestore
         await deleteDoc(workoutDocRef);
-
+        setLatestQuery(`deleteDoc(doc(db, "workouts", "${workoutToDelete.id}"))`);
         console.log("Workout deleted successfully!");
 
         // Optionally close the dialog

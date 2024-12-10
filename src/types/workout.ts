@@ -10,7 +10,7 @@ export interface Exercise {
 }
 
 export interface Workout {
-  workoutType: ReactNode;
+  workoutType: String;
   timestamp: any;
   id: string;
   date: string;

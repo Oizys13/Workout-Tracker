@@ -6,13 +6,22 @@ import { Workout, WorkoutSummary } from "@/types/workout";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import { db } from './firebase'
 import { useEffect, useState } from "react";
-
+import { useLatestQuery } from './lib/LatestQueryContest';
 
 
 
 export function App() {
+  const { latestQuery } = useLatestQuery();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [summary, setSummary] = useState<WorkoutSummary>({} as WorkoutSummary);
+  const [isFloatingVisible, setFloatingVisible] = useState(false);
+  
+
+  const handleButtonClick = () => {
+    setFloatingVisible(!isFloatingVisible);
+  };
+
+  
 
 
 
@@ -65,6 +74,8 @@ export function App() {
     // Cleanup listener on component unmount
     return () => unsubscribe();
   }, []);
+
+  
   const recentWorkouts = workouts.slice(0, 2);
   // Get the rest of the workouts
   const restOfWorkouts = workouts.slice(2);
@@ -84,6 +95,21 @@ export function App() {
             <WorkoutList workouts={restOfWorkouts} />
           </div>
       </main>
+      <button
+        onClick={handleButtonClick}
+        className="fixed bottom-8 right-8 w-16 h-16 bg-[#281434] text-white rounded-full shadow-lg flex items-center justify-center z-50"
+      >
+        Query
+      </button>
+      {isFloatingVisible && latestQuery && (
+        <div
+          className="fixed bottom-24 right-8 w-96 p-4 mb-4 bg-gray-800 text-white rounded-lg shadow-lg z-50"
+        >
+          <h3 className="text-lg font-bold mb-2">Latest Firebase Query</h3>
+          <pre className="text-sm whitespace-pre-wrap">{latestQuery}</pre>
+        </div>
+      )}
+
     </div>
   );
 }
