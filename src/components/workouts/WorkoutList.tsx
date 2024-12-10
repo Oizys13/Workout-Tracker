@@ -105,10 +105,10 @@ export function WorkoutList({ workouts }: WorkoutListProps) {
           <CardContent>
             <div className="grid gap-2">
               {workout.exercises.map((exercise) => (
-                <div key={exercise.id} className="flex justify-between items-center text-sm">
+                <div key={exercise.name} className="flex justify-between items-center text-sm">
                   <span>{exercise.name}</span>
                   <span className="text-muted-foreground">
-                    {exercise.sets} × {exercise.reps} @ {exercise.load}kg
+                    {exercise.sets} @ {exercise.load}kg
                   </span>
                 </div>
               ))}

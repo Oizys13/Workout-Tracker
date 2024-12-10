@@ -1,16 +1,13 @@
-import { ReactNode } from "react";
 
 export interface Exercise {
-  load: ReactNode;
-  id: string;
   name: string;
-  sets: number;
-  reps: number;
-  weight: number;
+  sets: string; // Keep as string if input fields are text-based
+  load: string; // Keep as string if input fields are text-based
 }
 
+
 export interface Workout {
-  workoutType: String;
+  workoutType: string;
   timestamp: any;
   id: string;
   date: string;
