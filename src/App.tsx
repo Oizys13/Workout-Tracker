@@ -56,7 +56,7 @@ export function App() {
           sum +
           workout.exercises.reduce(
             (exerciseSum, exercise) =>
-              exerciseSum + exercise.sets * exercise.load,
+              exerciseSum + Number(exercise.sets) * Number(exercise.load),
             0
           ),
         0
